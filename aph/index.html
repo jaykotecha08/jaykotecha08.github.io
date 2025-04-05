@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APH Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+        .linkedin-logo {
+            width: 50px;
+            margin-bottom: 10px;
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #0073b1;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005f8b;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9f5ff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn Logo" class="linkedin-logo">
+        <h2>APH Calculator</h2>
+        
+        <label>Current APH (YTD): <input type="number" id="currentAPH" step="0.01"></label>
+        <label>Total Resolved Cases (YTD): <input type="number" id="totalCases"></label>
+        <label>Total Queue Hours (YTD): <input type="number" id="totalQueueHours" step="0.1"></label>
+        <label>Target APH: <input type="number" id="targetAPH" step="0.01"></label>
+        <label>Target Date: <input type="date" id="targetDate"></label>
+        
+        <button onclick="calculatePrediction()">Calculate</button>
+        
+        <div class="result" id="result"></div>
+    </div>
+    
+    <script>
+        function calculatePrediction() {
+            const currentAPH = parseFloat(document.getElementById('currentAPH').value);
+            const totalCases = parseInt(document.getElementById('totalCases').value);
+            const totalQueueHours = parseFloat(document.getElementById('totalQueueHours').value);
+            const targetAPH = parseFloat(document.getElementById('targetAPH').value);
+            const targetDate = new Date(document.getElementById('targetDate').value);
+            
+            if (isNaN(currentAPH) || isNaN(totalCases) || isNaN(totalQueueHours) || isNaN(targetAPH) || isNaN(targetDate.getTime())) {
+                alert("Please enter valid numbers.");
+                return;
+            }
+            
+            const today = new Date();
+            const weeksRemaining = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24 * 7));
+            
+            if (weeksRemaining <= 0) {
+                alert("Target date must be in the future.");
+                return;
+            }
+            
+            const totalTargetCases = targetAPH * (totalQueueHours + weeksRemaining * 35); // Assuming 35 queue hours per week
+            const requiredWeeklyCases = (totalTargetCases - totalCases) / weeksRemaining;
+            const requiredWeeklyQueueHours = requiredWeeklyCases / targetAPH;
+            
+            document.getElementById('result').innerHTML = `
+                <p><strong>Weeks remaining:</strong> ${weeksRemaining}</p>
+                <p><strong>Required cases per week:</strong> ${requiredWeeklyCases.toFixed(1)}</p>
+                <p><strong>Required queue hours per week:</strong> ${requiredWeeklyQueueHours.toFixed(1)}</p>
+                <p><strong>Weekly APH:</strong> ${targetAPH}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
